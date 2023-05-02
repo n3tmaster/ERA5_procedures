@@ -1,0 +1,17 @@
+[project]
+name = "Library for importing ERA5 Copernicus Data into Drought Observatory platform"
+version = "0.1.1"
+authors = [
+  { name="Author", email="leandro.rocchi@cnr.it" },
+]
+description = "Package with utilities for retrieving, manipulating and sotring ERA5 data into DO database"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Drought Observatory home page" = "https://drought.climateservices.it/en/"
+"Bug Tracker" = "https://github.com/n3tmaster/ERA5_procedures"
