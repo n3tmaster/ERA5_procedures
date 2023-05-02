@@ -6,12 +6,11 @@ import numpy as np
 import xarray as xr
 import requests
 import os
-import pathlib
 import sqlalchemy as db
+import logging
 
-
-def get_n_save(year_in: int, month_in: int, days_in) -> int:
-    
+def get_n_save(year_in: int, month_in: int,basepath: str , days_in) -> int:
+   
     c = cdsapi.Client()
     try:
         list_of_days = list(filter(lambda x: isinstance(x,str), days_in))
@@ -23,7 +22,7 @@ def get_n_save(year_in: int, month_in: int, days_in) -> int:
         data = c.retrieve('reanalysis-era5-land',
             {
                 'product_type': 'reanalysis',
-                'variable': 'skin_temperature',
+                'variable': 'skin_temperature',   #per il dewpoint e' 2m_dewpoint_temperature
                 'year': str(year_in),
                 'format': 'netcdf',
                 'month': str(month_in),
@@ -42,9 +41,11 @@ def get_n_save(year_in: int, month_in: int, days_in) -> int:
                         70, -13, 20, 40,
                         ],  
             },
-            './skintemp_'+str(year_in)+'_'+str(month_in)+'.nc')
+            basepath+'/skintemp_'+str(year_in)+'_'+str(month_in)+'.nc')
         
-        nc_file = './skintemp_'+year_in+'_'+str(month_in)+'.nc'
+        
+        print('open nc file')
+        nc_file = basepath+'/skintemp_'+str(year_in)+'_'+str(month_in)+'.nc'
         print('Loading dataset')
         ds = xr.open_dataset(nc_file).load()
 
@@ -86,7 +87,8 @@ def get_n_save(year_in: int, month_in: int, days_in) -> int:
         print("remove "+nc_file)
         os.remove(nc_file)
         return 0
-    except:
+    except Exception as e:
+        logging.error(e)
         return 1
     
 
@@ -111,20 +113,24 @@ def get_last_day(connect_str: str) -> int:
     
 def del_image(connect_str: str, dtime_from: str, dtime_to: str) -> int:
     retval = -1
+    print(connect_str)
     engine = db.create_engine(connect_str)
     connection = engine.connect()
     metadata = db.MetaData()
     try:
-        sql = db.text("select max(dtime) from postgis.acquisizioni inner join postgis.skin_temperature using (id_acquisizione)")
+     
 
-        ResultProxy = connection.execute(sql).fetchall()
+        sql = db.text("delete from postgis.skin_temperature where id_acquisizione in (select id_acquisizione from postgis.acquisizioni inner join postgis.imgtypes using (id_imgtype) where imgtype = 'SKINTEMP' and dtime between '"+dtime_from+"'::timestamp and '"+dtime_to+"'::timestamp)")
+
+        connection.execute(sql)
         
-        for row in ResultProxy:
-            retval = row     
+        connection.commit() 
 
         connection.close()
         return retval
-    except:
+    except Exception as es:
+        logging.error(es)
+        connection.rollback()
         connection.close()
         return -1
 
