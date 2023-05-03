@@ -23,11 +23,10 @@ prevDay = 1
 icount = False
 i_month = prevMonth
 i_year = prevYear
-connect_string = str(sys.argv[1])
 
 print('clean old images')
 
-st.del_image(connect_string,
+st.del_image('postgresql://satserv:ss!2017pwd@droughtsdi.fi.ibimet.cnr.it/gisdb',
     str(date(prevYear,prevMonth,prevDay)),
     str(date(currentYear,currentMonth,calendar.monthrange(currentYear, currentMonth)[1])))
 

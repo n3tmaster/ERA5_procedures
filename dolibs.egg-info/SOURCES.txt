@@ -1,5 +1,4 @@
 README.md
-pyproject.toml
 setup.py
 dolibs/__init__.py
 dolibs/skintemp.py

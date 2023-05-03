@@ -1,5 +1,5 @@
 cdsapi
 numpy
 xarray
-SQLAlchemy
+sqlalchemy
 psycopg2-binary

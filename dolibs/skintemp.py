@@ -2,6 +2,7 @@
 # input: year, month and day of the image to be retrieved from ERA5 CDS.
 # output: return code - 0 OK
 import cdsapi 
+import rioxarray
 import numpy as np
 import xarray as xr
 import requests
@@ -41,8 +42,7 @@ def get_n_save(year_in: int, month_in: int,basepath: str , days_in) -> int:
                         70, -13, 20, 40,
                         ],  
             },
-            basepath+'/skintemp_'+str(year_in)+'_'+str(month_in)+'.nc')
-        
+            basepath+'/skintemp_'+str(year_in)+'_'+str(month_in)+'.nc')    
         
         print('open nc file')
         nc_file = basepath+'/skintemp_'+str(year_in)+'_'+str(month_in)+'.nc'
@@ -57,11 +57,11 @@ def get_n_save(year_in: int, month_in: int,basepath: str , days_in) -> int:
         #always skip last retrieved day cause it could be incomplete
         for i in range((len(daily_data_celsius) - 1)):
             dout = daily_data_celsius[i,:,:]
-            dout.rio.write_crs("EPSG:4326", inplace=True).rio.to_raster(nc_file.title()+'_out_'+str((i+1))+'.tiff')
+            dout.rio.write_crs("EPSG:4326", inplace=True).rio.to_raster(nc_file+'_out_'+str((i+1))+'.tiff')
             #set file and form data for post call
 
             files_in = {
-                'file': (nc_file.title()+'_out_'+str((i+1))+'.tiff', open(nc_file.title()+'_out_'+str((i+1))+'.tiff', 'rb'),'multipart/form-data'),
+                'file': (nc_file+'_out_'+str((i+1))+'.tiff', open(nc_file+'_out_'+str((i+1))+'.tiff', 'rb'),'multipart/form-data'),
                 'year': str(year_in),
                 'month': str(month_in),
                 'day': str((i+1))
@@ -73,16 +73,13 @@ def get_n_save(year_in: int, month_in: int,basepath: str , days_in) -> int:
             print(response.content)
             dout.close()
             #delete tiff image
-            print("remove "+nc_file.title()+'_out_'+str((i+1))+'.tiff')
-            os.remove(nc_file.title()+'_out_'+str((i+1))+'.tiff')
+            print("remove "+nc_file+'_out_'+str((i+1))+'.tiff')
+            os.remove(nc_file+'_out_'+str((i+1))+'.tiff')
         daily_data_celsius.close()
         daily_data.close()
             
         ds.close()
       
-    
-
-
         #delete nc file
         print("remove "+nc_file)
         os.remove(nc_file)
@@ -94,7 +91,7 @@ def get_n_save(year_in: int, month_in: int,basepath: str , days_in) -> int:
 
 def get_last_day(connect_str: str) -> int:
     retval = -1
-    engine = db.create_engine(connect_str)
+    engine = db.create_engine(connect_str,future=True)
     connection = engine.connect()
     metadata = db.MetaData()
     try:
@@ -114,7 +111,7 @@ def get_last_day(connect_str: str) -> int:
 def del_image(connect_str: str, dtime_from: str, dtime_to: str) -> int:
     retval = -1
     print(connect_str)
-    engine = db.create_engine(connect_str)
+    engine = db.create_engine(connect_str,future=True)
     connection = engine.connect()
     metadata = db.MetaData()
     try:
