@@ -1,4 +1,7 @@
 cdsapi
+scipy
+netcdf4
+rioxarray
 numpy
 xarray
 sqlalchemy
