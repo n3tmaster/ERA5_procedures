@@ -54,8 +54,8 @@ def get_n_save(year_in: int, month_in: int,basepath: str , days_in) -> int:
         daily_data_celsius = daily_data.skt - 273.15
 
         print('Start cube elaboration')
-        #always skip last retrieved day cause it could be incomplete
-        for i in range((len(daily_data_celsius) - 1)):
+        
+        for i in range((len(daily_data_celsius))):
             dout = daily_data_celsius[i,:,:]
             dout.rio.write_crs("EPSG:4326", inplace=True).rio.to_raster(nc_file+'_out_'+str((i+1))+'.tiff')
             #set file and form data for post call

@@ -1,6 +1,7 @@
 README.md
 setup.py
 dolibs/__init__.py
+dolibs/dewpoint.py
 dolibs/skintemp.py
 dolibs.egg-info/PKG-INFO
 dolibs.egg-info/SOURCES.txt
